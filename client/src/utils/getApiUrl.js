@@ -1,11 +1,19 @@
 /**
  * Get the base API URL from environment
- * @returns {string} Base API URL (e.g., 'http://localhost:5001' or 'https://api.example.com')
+ * Handles both patterns:
+ * - With /api: https://api.example.com/api (used by apiClient)
+ * - Without /api: https://api.example.com (for OAuth endpoints)
+ * @returns {string} Base URL without trailing slash
  */
 export const getApiBaseUrl = () => {
     const base = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-    // Remove trailing slash for consistency
-    return base.replace(/\/$/, '');
+    // Remove trailing slash
+    let url = base.replace(/\/$/, '');
+    // Remove /api suffix if present (apiClient adds it, OAuth shouldn't double it)
+    if (url.endsWith('/api')) {
+        url = url.slice(0, -4);
+    }
+    return url;
 };
 
 /**
