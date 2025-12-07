@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { motion } from 'framer-motion';
 import { UserCircleIcon, KeyIcon, UserIcon, EnvelopeIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { getOAuthUrl } from '../utils/getApiUrl';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -239,7 +240,7 @@ const Profile = () => {
                         </div>
                         <div className="mt-3">
                           <a
-                            href={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/auth/google/gmail`}
+                            href={getOAuthUrl('/api/auth/google/gmail')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

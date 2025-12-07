@@ -27,6 +27,7 @@ import { hasValidAuth, hasLikelyToken } from '../utils/authGuard';
 import GmailConnectModal from '../components/GmailConnectModal';
 import { FaGoogle } from 'react-icons/fa';
 import { getGmailStatus } from '../services/api/gmail';
+import { getOAuthUrl } from '../utils/getApiUrl';
 
 // Register ChartJS components
 ChartJS.register(
@@ -587,7 +588,7 @@ const Dashboard = () => {
               <p className="text-sm text-yellow-700">
                 Gmail connection lost.{' '}
                 <a
-                  href={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/auth/google/gmail`}
+                  href={getOAuthUrl('/api/auth/google/gmail')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium underline hover:text-yellow-600"
