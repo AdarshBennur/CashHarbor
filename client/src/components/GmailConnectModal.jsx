@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { FaGoogle, FaTimes, FaShieldAlt } from 'react-icons/fa';
+import { getOAuthUrl } from '../utils/getApiUrl';
 
 const GmailConnectModal = ({ isOpen, onClose }) => {
     useEffect(() => {
@@ -17,7 +18,7 @@ const GmailConnectModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const connectUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/auth/google/gmail`;
+    const connectUrl = getOAuthUrl('/api/auth/google/gmail');
 
     const handleMaybeLater = () => {
         localStorage.setItem('gmail_connect_snooze_v2', Date.now().toString());
