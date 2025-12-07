@@ -68,20 +68,32 @@ const GmailConnectModal = ({ isOpen, onClose }) => {
                         </p>
                     </div>
 
+
                     {/* CTA */}
-                    <a
-                        href={connectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
+                    <button
+                        onClick={async () => {
+                            try {
+                                const response = await fetch(connectUrl);
+                                const data = await response.json();
+
+                                if (data.success && data.authUrl) {
+                                    // Open Google OAuth in new tab
+                                    window.open(data.authUrl, '_blank', 'noopener,noreferrer');
+                                    onClose();
+                                } else {
+                                    console.error('Failed to get Gmail auth URL:', data);
+                                    alert('Failed to connect Gmail. Please try again.');
+                                }
+                            } catch (error) {
+                                console.error('Error connecting Gmail:', error);
+                                alert('Failed to connect Gmail. Please try again.');
+                            }
+                        }}
+                        className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-2"
                     >
-                        <button
-                            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-2"
-                        >
-                            <FaGoogle />
-                            Connect Gmail
-                        </button>
-                    </a>
+                        <FaGoogle />
+                        Connect Gmail
+                    </button>
 
                     <button
                         onClick={handleMaybeLater}
