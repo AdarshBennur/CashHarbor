@@ -13,7 +13,13 @@ const Budget = require('./models/Budget');
 dotenv.config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://aditrack:track999@tracker.pq6xgts.mongodb.net/?retryWrites=true&w=majority&appName=tracker', {
+if (!process.env.MONGO_URI) {
+  console.error('ERROR: MONGO_URI environment variable is required'.red.bold);
+  console.error('Please set MONGO_URI in your .env file'.yellow);
+  process.exit(1);
+}
+
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -206,7 +212,7 @@ const importData = async () => {
 
     // Insert users
     const createdUsers = await User.insertMany(users);
-    
+
     const regularUserId = createdUsers[0]._id;
     const guestUserId = createdUsers[1]._id;
 
@@ -338,7 +344,7 @@ const createGuestDataOnly = async () => {
   try {
     // Find or create guest user
     let guestUser = await User.findOne({ email: 'guest@example.com' });
-    
+
     if (!guestUser) {
       guestUser = await User.create({
         username: 'Guest User',
@@ -350,10 +356,10 @@ const createGuestDataOnly = async () => {
     } else {
       console.log('Guest user already exists...'.yellow.inverse);
     }
-    
+
     // Create guest data
     await createGuestData(guestUser._id);
-    
+
     console.log('Guest data created successfully!'.green.bold);
     process.exit();
   } catch (error) {
