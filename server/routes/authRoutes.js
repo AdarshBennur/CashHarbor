@@ -65,8 +65,8 @@ router.get('/logout', protect, logout);
 
 // @route   GET /api/auth/google/gmail
 // @desc    Initiate Gmail OAuth consent
-// @access  Private
-router.get('/google/gmail', protect, initiateGmailConsent);
+// @access  Public (user must be logged in to frontend, but route itself is public)
+router.get('/google/gmail', initiateGmailConsent);
 
 // @route   GET /api/auth/google/gmail/callback
 // @desc    Handle Gmail OAuth callback
