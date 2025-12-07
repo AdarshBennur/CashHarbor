@@ -367,24 +367,38 @@ exports.googleAuth = asyncHandler(async (req, res) => {
 });
 
 // @desc    Initiate Gmail OAuth consent
+// @desc    Initiate Gmail OAuth consent
 // @route   GET /api/auth/google/gmail
-// @access  Private
+// @access  Public
 exports.initiateGmailConsent = asyncHandler(async (req, res) => {
   const gmailService = require('../services/gmailService');
 
   try {
+    console.log('📧 Initiating Gmail OAuth consent...');
+    console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'SET' : 'MISSING');
+    console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'MISSING');
+    console.log('GOOGLE_GMAIL_REDIRECT_URI:', process.env.GOOGLE_GMAIL_REDIRECT_URI);
+
     // Generate authorization URL with user ID in state
-    const authUrl = gmailService.generateAuthUrl(req.user.id);
+    const authUrl = gmailService.generateAuthUrl(req.user ? req.user.id : 'anonymous');
+
+    console.log('✅ Gmail auth URL generated successfully');
+    console.log('Auth URL:', authUrl);
 
     res.status(200).json({
       success: true,
       authUrl
     });
   } catch (error) {
-    console.error('Error generating Gmail auth URL:', error);
+    console.error('❌ Error generating Gmail auth URL:');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Full error:', error);
+
     res.status(500).json({
       success: false,
-      message: 'Failed to generate Gmail authorization URL'
+      message: 'Failed to generate Gmail authorization URL',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
