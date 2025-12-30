@@ -73,6 +73,7 @@ const Sidebar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon },
     { name: 'Income', href: '/income', icon: BanknotesIcon },
     { name: 'Expenses', href: '/expenses', icon: CurrencyDollarIcon },
+    { name: 'Pending', href: '/pending-transactions', icon: BellIcon },
     { name: 'Budget', href: '/budget', icon: DocumentChartBarIcon },
     { name: 'Goals', href: '/goals', icon: FlagIcon },
     { name: 'Reminders', href: '/reminders', icon: BellIcon },
