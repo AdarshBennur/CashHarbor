@@ -253,7 +253,7 @@ const Profile = () => {
                               const response = await api.post('/gmail/fetch', {});
 
                               const stats = response.data.data || response.data.stats || {};
-                              alert(`Sync complete!\\nFetched: ${stats.fetched || 0}\\nNew: ${stats.new || stats.saved || 0}`);
+                              alert(`Sync complete!\nFetched: ${stats.fetched || 0}\nNew: ${stats.new || stats.saved || 0}`);
                               window.location.reload();
                             } catch (error) {
                               console.error('Sync error:', error);
