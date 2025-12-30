@@ -367,7 +367,6 @@ exports.googleAuth = asyncHandler(async (req, res) => {
 });
 
 // @desc    Initiate Gmail OAuth consent
-// @desc    Initiate Gmail OAuth consent
 // @route   GET /api/auth/google/gmail
 // @access  Public (userId passed via query param from authenticated frontend)
 exports.initiateGmailConsent = asyncHandler(async (req, res) => {
@@ -406,29 +405,6 @@ exports.initiateGmailConsent = asyncHandler(async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-});
-console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-const authUrl = gmailService.generateAuthUrl(userId);
-
-console.log('✅ Gmail auth URL generated successfully');
-console.log('Auth URL:', authUrl);
-
-res.status(200).json({
-  success: true,
-  authUrl
-});
-  } catch (error) {
-  console.error('❌ Error generating Gmail auth URL:');
-  console.error('Error message:', error.message);
-  console.error('Error stack:', error.stack);
-  console.error('Full error:', error);
-
-  res.status(500).json({
-    success: false,
-    message: 'Failed to generate Gmail authorization URL',
-    error: process.env.NODE_ENV === 'development' ? error.message : undefined
-  });
-}
 });
 
 // @desc    Handle Gmail OAuth callback
