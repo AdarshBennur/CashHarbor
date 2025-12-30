@@ -10,6 +10,7 @@ import { getOAuthUrl } from '../utils/getApiUrl';
 
 const Profile = () => {
   const { user, logout } = useAuth();
+  const userId = user?._id || user?.id;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('account');
   const [loading, setLoading] = useState({
@@ -242,7 +243,7 @@ const Profile = () => {
                           <button
                             onClick={async () => {
                               try {
-                                const connectUrl = getOAuthUrl('/api/auth/google/gmail');
+                                const connectUrl = getOAuthUrl('/api/auth/google/gmail', userId);
                                 const response = await fetch(connectUrl);
                                 const data = await response.json();
 

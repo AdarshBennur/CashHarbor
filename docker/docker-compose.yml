@@ -52,7 +52,7 @@ services:
       dockerfile: Dockerfile
       target: ${BUILD_TARGET:-development}
     container_name: trackify-server
-    restart: unless-stopped
+    restart: no
     # Load environment variables from .env file
     env_file:
       - .env

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FaGoogle, FaTimes, FaShieldAlt } from 'react-icons/fa';
 import { getOAuthUrl } from '../utils/getApiUrl';
 
-const GmailConnectModal = ({ isOpen, onClose }) => {
+const GmailConnectModal = ({ isOpen, onClose, userId }) => {
     useEffect(() => {
         if (!isOpen) return;
 
@@ -18,7 +18,7 @@ const GmailConnectModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const connectUrl = getOAuthUrl('/api/auth/google/gmail');
+    // connectUrl now generated inside onClick with userId
 
     const handleMaybeLater = () => {
         localStorage.setItem('gmail_connect_snooze_v2', Date.now().toString());
@@ -73,6 +73,7 @@ const GmailConnectModal = ({ isOpen, onClose }) => {
                     <button
                         onClick={async () => {
                             try {
+                                const connectUrl = getOAuthUrl('/api/auth/google/gmail', userId);
                                 const response = await fetch(connectUrl);
                                 const data = await response.json();
 

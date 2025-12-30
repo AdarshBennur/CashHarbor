@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "render": {
+      "command": "/opt/homebrew/bin/npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.render.com/mcp",
+        "--header",
+        "Authorization: Bearer rnd_rEiZeW69itu7A5H4q3045AXUpUyr"
+      ]
+    }
+  }
+}

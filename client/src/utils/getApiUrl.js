@@ -19,8 +19,13 @@ export const getApiBaseUrl = () => {
 /**
  * Get full URL for OAuth endpoints (which need full path, not just /api base)
  * @param {string} path - Path starting with slash (e.g., '/api/auth/google/gmail')
+ * @param {string} userId - Optional user ID to append as query param
  * @returns {string} Full URL
  */
-export const getOAuthUrl = (path) => {
-    return `${getApiBaseUrl()}${path}`;
+export const getOAuthUrl = (path, userId) => {
+    const url = `${getApiBaseUrl()}${path}`;
+    if (userId) {
+        return `${url}?userId=${encodeURIComponent(userId)}`;
+    }
+    return url;
 };

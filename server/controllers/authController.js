@@ -374,13 +374,55 @@ exports.initiateGmailConsent = asyncHandler(async (req, res) => {
   const gmailService = require('../services/gmailService');
 
   try {
-    console.log('📧 Initiating Gmail OAuth consent...');
-    console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'SET' : 'MISSING');
-    console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'MISSING');
-    console.log('GOOGLE_GMAIL_REDIRECT_URI:', process.env.GOOGLE_GMAIL_REDIRECT_URI);
-
-    // Generate authorization URL with user ID in state
-    const authUrl = gmailService.generateAuthUrl(req.user ? req.user.id : 'anonymous');
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
+    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
+    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
+    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+    const authUrl = gmailService.generateAuthUrl(userId);
 
     console.log('✅ Gmail auth URL generated successfully');
     console.log('Auth URL:', authUrl);

@@ -9,7 +9,7 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: trackify-mongodb
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -29,7 +29,7 @@ services:
   server:
     build: ./server
     container_name: trackify-server
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "127.0.0.1:5000:5000"
     environment:
@@ -52,7 +52,7 @@ services:
   client:
     build: ./client
     container_name: trackify-client
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "127.0.0.1:3000:3000"
     environment:
