@@ -250,21 +250,14 @@ const Profile = () => {
                               btn.disabled = true;
                               btn.textContent = 'Syncing...';
 
-                              const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/gmail/fetch`, {
-                                method: 'POST',
-                                credentials: 'include',
-                                headers: { 'Content-Type': 'application/json' }
-                              });
+                              const response = await api.post('/gmail/fetch', {});
 
-                              if (response.ok) {
-                                const data = await response.json();
-                                alert(`Sync complete! Fetched: ${data.stats?.fetched || 0}, New: ${data.stats?.saved || 0}`);
-                                window.location.reload();
-                              } else {
-                                throw new Error('Sync failed');
-                              }
+                              const stats = response.data.data || response.data.stats || {};
+                              alert(`Sync complete!\\nFetched: ${stats.fetched || 0}\\nNew: ${stats.new || stats.saved || 0}`);
+                              window.location.reload();
                             } catch (error) {
-                              alert('Sync failed. Please try again.');
+                              console.error('Sync error:', error);
+                              alert(`Sync failed: ${error.response?.data?.message || error.message || 'Please try again'}`);
                               event.target.disabled = false;
                               event.target.textContent = '🔄 Sync Now';
                             }
