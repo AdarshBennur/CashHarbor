@@ -100,16 +100,20 @@ const PendingTransactions = () => {
         }
 
         try {
-            await api.post('/gmail/confirm', {
+            console.log('Confirming transaction IDs:', Array.from(selected));
+            const response = await api.post('/gmail/confirm', {
                 transactionIds: Array.from(selected)
             });
 
+            console.log('Confirm response:', response.data);
             toast.success(`Confirmed ${selected.size} transactions!`);
             setSelected(new Set());
             await fetchPendingTransactions();
         } catch (error) {
             console.error('Error confirming transactions:', error);
-            toast.error('Failed to confirm transactions');
+            console.error('Error response:', error.response?.data);
+            const message = error.response?.data?.message || 'Failed to confirm transactions';
+            toast.error(message);
         }
     };
 

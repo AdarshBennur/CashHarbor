@@ -129,12 +129,16 @@ exports.confirmTransactions = asyncHandler(async (req, res) => {
         });
     }
 
+    console.log(`[Confirm] Confirming ${transactionIds.length} transactions for user ${req.user.id}`);
+
     // Fetch pending transactions
     const pending = await PendingTransaction.find({
         _id: { $in: transactionIds },
         user: req.user.id,
         isConfirmed: false
     });
+
+    console.log(`[Confirm] Found ${pending.length} pending transactions`);
 
     if (pending.length === 0) {
         return res.status(404).json({
@@ -145,28 +149,43 @@ exports.confirmTransactions = asyncHandler(async (req, res) => {
 
     // Convert to expenses
     const expenses = [];
+    const errors = [];
 
     for (const txn of pending) {
-        // Only create expense for debits (expenses)
-        // Credits (income) would go to Income model if needed
-        if (txn.direction === 'debit') {
-            const expense = await Expense.create({
-                user: req.user.id,
-                description: txn.description || `${txn.vendor} transaction`,
-                amount: txn.amount,
-                category: txn.category,
-                date: txn.date,
-                paymentMethod: txn.metadata?.paymentMethod || 'UPI',
-                tags: ['gmail-import'],
-                notes: `Imported from Gmail. Ref: ${txn.referenceId || 'N/A'}`
-            });
-            expenses.push(expense);
-        }
+        try {
+            // Only create expense for debits (expenses)
+            // Credits (income) would go to Income model if needed
+            if (txn.direction === 'debit') {
+                const expense = await Expense.create({
+                    user: req.user.id,
+                    description: txn.description || `${txn.vendor} transaction`,
+                    amount: txn.amount,
+                    category: txn.category || 'Uncategorized',
+                    date: txn.date,
+                    paymentMethod: txn.metadata?.paymentMethod || 'UPI',
+                    tags: ['gmail-import'],
+                    notes: `Imported from Gmail. Ref: ${txn.referenceId || 'N/A'}`
+                });
+                expenses.push(expense);
+                console.log(`[Confirm] Created expense ${expense._id} for transaction ${txn._id}`);
+            }
 
-        // Mark as confirmed
-        txn.isConfirmed = true;
-        txn.confirmedAt = new Date();
-        await txn.save();
+            // Mark as confirmed
+            txn.isConfirmed = true;
+            txn.confirmedAt = new Date();
+            await txn.save();
+        } catch (error) {
+            console.error(`[Confirm] Error processing transaction ${txn._id}:`, error);
+            errors.push({ transactionId: txn._id, error: error.message });
+        }
+    }
+
+    if (errors.length > 0) {
+        return res.status(500).json({
+            success: false,
+            message: `Failed to confirm some transactions: ${errors.map(e => e.error).join(', ')}`,
+            errors
+        });
     }
 
     res.status(200).json({
