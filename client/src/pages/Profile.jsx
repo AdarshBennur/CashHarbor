@@ -239,14 +239,29 @@ const Profile = () => {
                           <p>Connect your Gmail to automatically import transaction emails.</p>
                         </div>
                         <div className="mt-3">
-                          <a
-                            href={getOAuthUrl('/api/auth/google/gmail')}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={async () => {
+                              try {
+                                const connectUrl = getOAuthUrl('/api/auth/google/gmail');
+                                const response = await fetch(connectUrl);
+                                const data = await response.json();
+
+                                if (data.success && data.authUrl) {
+                                  // Open Google OAuth in new tab
+                                  window.open(data.authUrl, '_blank', 'noopener,noreferrer');
+                                } else {
+                                  console.error('Failed to get Gmail auth URL:', data);
+                                  alert('Failed to connect Gmail. Please try again.');
+                                }
+                              } catch (error) {
+                                console.error('Error connecting Gmail:', error);
+                                alert('Failed to connect Gmail. Please try again.');
+                              }
+                            }}
                             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           >
                             Connect Gmail
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>
