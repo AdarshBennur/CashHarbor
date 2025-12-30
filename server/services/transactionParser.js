@@ -12,9 +12,16 @@ const PATTERNS = {
     debitKeywords: /\b(debited|paid|payment of|sent|withdrawn|spent)\b/gi,
     creditKeywords: /\b(credited|deposit|received|refund|cashback)\b/gi,
 
-    // NEW: Enhanced merchant extraction patterns
-    upiVendor: /(?:by\s+UPI[-\s]?|UPI\s+payment\s+to\s+)([A-Za-z0-9 &.\-]{3,80})/i,
-    paymentTo: /(?:payment\s+to|paid\s+to|paid\s+for)\s+([A-Za-z0-9 &.\-]{3,80})/i,
+    // NEW: Enhanced merchant extraction patterns for Indian banks
+    upiVendor: /(?:paid to|payment to|sent to|transferred to)\s+([A-Z][A-Za-z0-9\s&.'-]{2,50}?)(?:\s+via\s+UPI|\s+UPI|\s+on|\s+ref|\s+txn|\s+₹|\s+INR|\s+Rs)/i,
+    merchantInBody: /(?:merchant|vendor|seller|paid to):\s*([A-Z][A-Za-z0-9\s&.'-]{2,50})/i,
+    atMerchant: /\bat\s+([A-Z][A-Za-z0-9\s&.'-]{2,40})(?:\s+on|\s+via|\s+₹|\s+INR|\s+Rs|\s*$)/i,
+
+    // VPA extraction (user@merchant format)
+    vpaPattern: /([a-z0-9][a-z0-9.-]*@[a-z][a-z0-9.-]+)/gi,
+
+    // Payment patterns
+    paymentTo: /(?:payment\s+(?:of|to)|paid\s+(?:to|for))\s+([A-Z][A-Za-z0-9\s&.'-]{3,50}?)(?:\s+via|\s+through|\s+on|\s+₹|\s+INR|\s+Rs|\s+ref|\s+txn)/i,
     subscription: /\b(subscription\s+renewed|auto-?renew|renewal\s+of)\b/i,
     autopay: /\b(auto-?pay|recurring|monthly\s+subscription|standing\s+instruction)\b/i,
     walletTransfer: /\b(wallet\s+transfer|transferred\s+to\s+wallet)\b/i,
@@ -346,12 +353,22 @@ function determineDirectionEnhanced(text, subject, from) {
  * Enhanced vendor extraction with fallbacks
  */
 function extractVendorEnhanced(body, subject, from) {
-    // 1. Try UPI vendor pattern
+    // Helper: Check if string is account number
+    const isAccountNum = (str) => /^\d{8,}$/.test(str) || /^[xX*]{4,}\d{4}$/i.test(str);
+
+    // Helper: Clean vendor name
+    const cleanVendor = (str) => {
+        return str
+            .replace(PATTERNS.cleanupSuffix, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    // 1. Try UPI vendor pattern (highest priority)
     const upiMatch = PATTERNS.upiVendor.exec(body);
     if (upiMatch) {
-        let vendor = upiMatch[1].trim();
-        vendor = vendor.replace(PATTERNS.cleanupSuffix, '').trim();
-        if (vendor.length >= 3) {
+        const vendor = cleanVendor(upiMatch[1]);
+        if (vendor.length >= 3 && !isAccountNum(vendor) && !/^Account$/i.test(vendor)) {
             return vendor;
         }
     }
@@ -359,25 +376,49 @@ function extractVendorEnhanced(body, subject, from) {
     // 2. Try payment-to pattern
     const paymentMatch = PATTERNS.paymentTo.exec(body);
     if (paymentMatch) {
-        let vendor = paymentMatch[1].trim();
-        vendor = vendor.replace(PATTERNS.cleanupSuffix, '').trim();
-        if (vendor.length >= 3) {
+        const vendor = cleanVendor(paymentMatch[1]);
+        if (vendor.length >= 3 && !isAccountNum(vendor)) {
             return vendor;
         }
     }
 
-    // 3. Try merchant hint pattern
-    const merchantMatch = PATTERNS.merchantHint.exec(body);
+    // 3. Try merchant field pattern
+    const merchantMatch = PATTERNS.merchantInBody && PATTERNS.merchantInBody.exec(body);
     if (merchantMatch) {
-        let vendor = merchantMatch[1].trim();
-        // Clean up suffix
-        vendor = vendor.replace(PATTERNS.cleanupSuffix, '').trim();
-        if (vendor.length >= 3) {
+        const vendor = cleanVendor(merchantMatch[1]);
+        if (vendor.length >= 3 && !isAccountNum(vendor)) {
             return vendor;
         }
     }
 
-    // 4. Try sender domain mapping
+    // 4. Try "at Merchant" pattern
+    const atMatch = PATTERNS.atMerchant && PATTERNS.atMerchant.exec(body);
+    if (atMatch) {
+        const vendor = cleanVendor(atMatch[1]);
+        if (vendor.length >= 3 && !isAccountNum(vendor)) {
+            return vendor;
+        }
+    }
+
+    // 5. Extract from VPA (user@merchant → merchant.com)
+    const vpaMatches = body.match(PATTERNS.vpaPattern || PATTERNS.upiVpa);
+    if (vpaMatches && vpaMatches.length > 0) {
+        const vpa = vpaMatches[0];
+        const domain = vpa.split('@')[1];
+
+        // Check if domain is in known merchant list
+        const merchantName = MERCHANT_DOMAINS[domain] || MERCHANT_DOMAINS[domain + '.com'];
+        if (merchantName) {
+            return merchantName;
+        }
+
+        // Use domain name as vendor (paytm, phonepe, etc.)
+        if (domain && domain.length > 2) {
+            return domain.charAt(0).toUpperCase() + domain.slice(1);
+        }
+    }
+
+    // 6. Try sender domain mapping
     const lowerFrom = from.toLowerCase();
     for (const [domain, merchant] of Object.entries(MERCHANT_DOMAINS)) {
         if (lowerFrom.includes(domain)) {
@@ -385,16 +426,21 @@ function extractVendorEnhanced(body, subject, from) {
         }
     }
 
-    // 5. Subject line tokens (filter stopwords)
-    const stopwords = ['alert', 'notification', 'transaction', 'payment', 'receipt', 'confirmation', 'for', 'the', 'your', 'order', 'ref', 'txn'];
+    // 7. Subject line tokens (filter stopwords and account numbers)
+    const stopwords = ['alert', 'notification', 'transaction', 'payment', 'receipt', 'confirmation', 'account', 'for', 'the', 'your', 'order', 'ref', 'txn', 'dear', 'customer'];
     const subjectWords = subject
         .split(/[\s\-:]+/)
-        .filter(w => w.length > 2 && !/^\d+$/.test(w))
+        .filter(w => w.length > 2)
+        .filter(w => !/^\d+$/.test(w))  // No pure numbers
+        .filter(w => !isAccountNum(w))   // No account numbers
         .filter(w => !stopwords.includes(w.toLowerCase()))
         .slice(0, 6);
 
     if (subjectWords.length > 0) {
-        return subjectWords.slice(0, 3).join(' ');
+        const vendorFromSubject = subjectWords.slice(0, 3).join(' ');
+        if (!isAccountNum(vendorFromSubject)) {
+            return vendorFromSubject;
+        }
     }
 
     return 'Unknown Merchant';

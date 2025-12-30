@@ -209,7 +209,14 @@ const PendingTransactions = () => {
                                                     className="border rounded px-2 py-1 w-full"
                                                 />
                                             ) : (
-                                                format(new Date(txn.date), 'PP')
+                                                <div>
+                                                    <div className="font-medium text-gray-900">
+                                                        {format(new Date(txn.date), 'PP')}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 mt-0.5">
+                                                        {format(new Date(txn.date), 'p')}
+                                                    </div>
+                                                </div>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-sm">

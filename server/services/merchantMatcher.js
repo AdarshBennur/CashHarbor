@@ -39,11 +39,39 @@ function matchVendor(rawVendor) {
         return { vendor: bestMatch.target, confidence: 'medium' };
     }
 
-    // 3. No match - return cleaned raw vendor
+    // 3. Check if rawVendor is actually an account number (privacy issue)
+    if (isAccountNumber(cleanVendor)) {
+        return { vendor: 'Bank Transfer', confidence: 'medium' };
+    }
+
+    // 4. No match - return cleaned raw vendor (NEVER return "Account")
+    const cleaned = capitalize(rawVendor);
+
+    // If it looks like garbage, mark as Unknown
+    if (cleaned.length < 3 || /^\d+$/.test(cleaned)) {
+        return { vendor: 'Unknown Merchant', confidence: 'low' };
+    }
+
     return {
-        vendor: capitalize(rawVendor),
+        vendor: cleaned,
         confidence: 'low'
     };
+}
+
+/**
+ * Check if string is an account number
+ */
+function isAccountNumber(str) {
+    // All digits (8+ chars) = account number
+    if (/^\d{8,}$/.test(str)) return true;
+
+    // Masked format (XXXX1234, ****1234)
+    if (/^[X*]{4,}\d{4}$/i.test(str)) return true;
+
+    // A/C followed by numbers
+    if (/^A[\/]?C\s*\d+$/i.test(str)) return true;
+
+    return false;
 }
 
 /**
