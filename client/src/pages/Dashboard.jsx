@@ -597,21 +597,51 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={async () => {
-                if (!window.confirm('Disconnect Gmail? You can reconnect anytime.')) return;
-                try {
-                  const { disconnectGmail } = await import('../services/api/gmail');
-                  await disconnectGmail();
-                  window.location.reload();
-                } catch (error) {
-                  alert('Failed to disconnect. Please try again.');
-                }
-              }}
-              className="ml-4 px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors"
-            >
-              Disconnect
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={async (event) => {
+                  try {
+                    const btn = event.target;
+                    btn.disabled = true;
+                    btn.textContent = 'Syncing...';
+
+                    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/gmail/fetch`, {
+                      method: 'POST',
+                      credentials: 'include',
+                      headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                      const data = await response.json();
+                      alert(`Sync complete! Fetched: ${data.stats?.fetched || 0}, New: ${data.stats?.saved || 0}`);
+                      window.location.reload();
+                    } else {
+                      throw new Error('Sync failed');
+                    }
+                  } catch (error) {
+                    alert('Sync failed. Please try again.');
+                  }
+                }}
+                className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors font-medium"
+              >
+                🔄 Sync Now
+              </button>
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Disconnect Gmail? You can reconnect anytime.')) return;
+                  try {
+                    const { disconnectGmail } = await import('../services/api/gmail');
+                    await disconnectGmail();
+                    window.location.reload();
+                  } catch (error) {
+                    alert('Failed to disconnect. Please try again.');
+                  }
+                }}
+                className="px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors"
+              >
+                Disconnect
+              </button>
+            </div>
           </div>
         </div>
       )}

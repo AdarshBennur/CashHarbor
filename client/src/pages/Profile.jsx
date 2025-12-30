@@ -242,25 +242,57 @@ const Profile = () => {
                           </div>
                         </div>
                       </div>
-                      <button
-                        onClick={async () => {
-                          if (!window.confirm('Are you sure you want to disconnect your Gmail? You can reconnect anytime.')) {
-                            return;
-                          }
-                          try {
-                            const { disconnectGmail } = await import('../services/api/gmail');
-                            await disconnectGmail();
-                            alert('Gmail disconnected successfully!');
-                            window.location.reload();
-                          } catch (error) {
-                            console.error('Error disconnecting Gmail:', error);
-                            alert('Failed to disconnect Gmail. Please try again.');
-                          }
-                        }}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Disconnect
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async (event) => {
+                            try {
+                              const btn = event.target;
+                              btn.disabled = true;
+                              btn.textContent = 'Syncing...';
+
+                              const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/gmail/fetch`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' }
+                              });
+
+                              if (response.ok) {
+                                const data = await response.json();
+                                alert(`Sync complete! Fetched: ${data.stats?.fetched || 0}, New: ${data.stats?.saved || 0}`);
+                                window.location.reload();
+                              } else {
+                                throw new Error('Sync failed');
+                              }
+                            } catch (error) {
+                              alert('Sync failed. Please try again.');
+                              event.target.disabled = false;
+                              event.target.textContent = '🔄 Sync Now';
+                            }
+                          }}
+                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          🔄 Sync Now
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm('Are you sure you want to disconnect your Gmail? You can reconnect anytime.')) {
+                              return;
+                            }
+                            try {
+                              const { disconnectGmail } = await import('../services/api/gmail');
+                              await disconnectGmail();
+                              alert('Gmail disconnected successfully!');
+                              window.location.reload();
+                            } catch (error) {
+                              console.error('Error disconnecting Gmail:', error);
+                              alert('Failed to disconnect Gmail. Please try again.');
+                            }
+                          }}
+                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          Disconnect
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
