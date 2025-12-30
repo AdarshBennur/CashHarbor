@@ -14,7 +14,7 @@ dotenv.config();
 console.log('Environment loaded'.green);
 
 if (process.env.MONGO_URI) {
-  console.log(`MongoDB URI configured: ${process.env.MONGO_URI}`.green);
+  console.log('MongoDB URI configured ✓'.green);
 } else {
   console.error('MONGO_URI is not defined in environment variables'.red.bold);
   console.error('Please check your .env file and set the MONGO_URI variable'.red);

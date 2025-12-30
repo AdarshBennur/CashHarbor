@@ -369,63 +369,28 @@ exports.googleAuth = asyncHandler(async (req, res) => {
 // @desc    Initiate Gmail OAuth consent
 // @desc    Initiate Gmail OAuth consent
 // @route   GET /api/auth/google/gmail
-// @access  Public
+// @access  Public (userId passed via query param from authenticated frontend)
 exports.initiateGmailConsent = asyncHandler(async (req, res) => {
   const gmailService = require('../services/gmailService');
 
   try {
+    // Get user ID from query parameter
     const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
-    const authUrl = gmailService.generateAuthUrl(userId);
-    const userId = req.query.userId;
-    if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
-    console.log("📧 Initiating Gmail OAuth, User ID:", userId);
-    console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING");
-    console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING");
-    console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID required'
+      });
+    }
+
+    console.log('📧 Initiating Gmail OAuth consent...');
+    console.log('User ID:', userId);
+
+    // Generate authorization URL with user ID in state
     const authUrl = gmailService.generateAuthUrl(userId);
 
     console.log('✅ Gmail auth URL generated successfully');
-    console.log('Auth URL:', authUrl);
 
     res.status(200).json({
       success: true,
@@ -434,8 +399,6 @@ exports.initiateGmailConsent = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error('❌ Error generating Gmail auth URL:');
     console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Full error:', error);
 
     res.status(500).json({
       success: false,
@@ -443,6 +406,29 @@ exports.initiateGmailConsent = asyncHandler(async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+console.log("GOOGLE_GMAIL_REDIRECT_URI:", process.env.GOOGLE_GMAIL_REDIRECT_URI);
+const authUrl = gmailService.generateAuthUrl(userId);
+
+console.log('✅ Gmail auth URL generated successfully');
+console.log('Auth URL:', authUrl);
+
+res.status(200).json({
+  success: true,
+  authUrl
+});
+  } catch (error) {
+  console.error('❌ Error generating Gmail auth URL:');
+  console.error('Error message:', error.message);
+  console.error('Error stack:', error.stack);
+  console.error('Full error:', error);
+
+  res.status(500).json({
+    success: false,
+    message: 'Failed to generate Gmail authorization URL',
+    error: process.env.NODE_ENV === 'development' ? error.message : undefined
+  });
+}
 });
 
 // @desc    Handle Gmail OAuth callback
