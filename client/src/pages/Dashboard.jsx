@@ -573,6 +573,7 @@ const Dashboard = () => {
       <GmailConnectModal
         isOpen={showGmailModal}
         onClose={handleCloseGmailModal}
+        userId={user?._id || user?.id}
       />
 
       {/* Gmail Error Notification */}
