@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './utils/apiClient'; // Import API utility to initialize it
 import { warmBackend } from './utils/warmup';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Analytics } from '@vercel/analytics/react';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -57,6 +58,7 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
       <>
         <ToastContainer position="top-right" autoClose={3000} />
+        <Analytics />
         <Routes>
           {/* Public routes with no navigation */}
           <Route path="/" element={<LandingPage />} />
